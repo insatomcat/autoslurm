@@ -10,6 +10,7 @@ Pour eviter la creation manuelle a chaque fois, utilise les scripts:
 - Script execute sur un hote Proxmox (commande `qm` disponible).
 - Un stockage Proxmox valide (ex: `local-lvm`).
 - Un bridge reseau valide (ex: `vmbr0`).
+- Pour hardening offline (recommande): `virt-customize` disponible (`guestfs-tools`).
 
 ## Utilisation rapide (directement sur l'hote Proxmox)
 
@@ -35,6 +36,7 @@ Le script cree par defaut:
 - `BRIDGE=vmbr0`
 - `DISK_FORMAT=raw`
 - `EFI_FORMAT=raw`
+- `HARDEN_IMAGE=1` (installe `qemu-guest-agent` + active le service)
 
 ## Variables personnalisables
 
@@ -48,6 +50,7 @@ MEMORY_MB=2048 \
 DISK_SIZE=25G \
 DISK_FORMAT=raw \
 EFI_FORMAT=raw \
+HARDEN_IMAGE=1 \
 bash /path/to/autoslurm/ops/create_debian13_template.sh
 ```
 
@@ -55,6 +58,22 @@ Le script SSH accepte les memes variables, en plus de:
 
 - `PROXMOX_SSH_HOST` (obligatoire)
 - `PROXMOX_SSH_USER` (optionnel, defaut `root`)
+
+## Hardening image (qemu-guest-agent)
+
+Par defaut, les scripts executent:
+
+```bash
+virt-customize -a <image>.qcow2 \
+  --install qemu-guest-agent,cloud-init \
+  --run-command "systemctl enable qemu-guest-agent"
+```
+
+Si tu veux desactiver temporairement cette etape:
+
+```bash
+HARDEN_IMAGE=0 bash /path/to/autoslurm/ops/create_debian13_template.sh
+```
 
 ## Integration dans `terraform.tfvars`
 
