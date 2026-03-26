@@ -45,6 +45,17 @@ class ClusterService:
                 [self.settings.iac_bin, "output", "-json", "cluster_inventory"], cwd=self.terraform_dir
             )
         except RuntimeError:
+            fallback = self._read_generated_inventory_state()
+            if fallback is not None:
+                controller, compute_nodes = fallback
+                current_nodes = len(compute_nodes)
+                return ClusterState(
+                    desired_nodes=current_nodes,
+                    current_nodes=current_nodes,
+                    controller=controller,
+                    compute_nodes=compute_nodes,
+                    last_operation=self.get_last_operation(),
+                )
             return ClusterState(
                 desired_nodes=0,
                 current_nodes=0,
@@ -62,6 +73,49 @@ class ClusterService:
             compute_nodes=compute_nodes,
             last_operation=self.get_last_operation(),
         )
+
+    def _read_generated_inventory_state(self) -> tuple[dict, list[dict]] | None:
+        inventory_path = self.ansible_dir / "inventory" / "generated_hosts.yml"
+        if not inventory_path.exists():
+            return None
+
+        controller: dict = {}
+        compute_nodes: list[dict] = []
+        current_section: str | None = None
+        current_host: str | None = None
+
+        for raw_line in inventory_path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.rstrip()
+            stripped = line.strip()
+            if stripped == "slurm_controller:":
+                current_section = "controller"
+                current_host = None
+                continue
+            if stripped == "slurm_compute:":
+                current_section = "compute"
+                current_host = None
+                continue
+            if not stripped or stripped.endswith(": {}") or stripped == "hosts:":
+                continue
+
+            if current_section in {"controller", "compute"} and stripped.endswith(":"):
+                host_name = stripped[:-1]
+                if host_name != "hosts":
+                    current_host = host_name
+                continue
+
+            if current_section and current_host and stripped.startswith("ansible_host:"):
+                ip = stripped.split(":", 1)[1].strip()
+                node = {"name": current_host, "ipv4": ip}
+                if current_section == "controller" and not controller:
+                    controller = node
+                elif current_section == "compute":
+                    compute_nodes.append(node)
+                current_host = None
+
+        if not controller and not compute_nodes:
+            return None
+        return controller, compute_nodes
 
     def _read_cluster_inventory_raw(self) -> dict:
         outputs = run_cmd_json(

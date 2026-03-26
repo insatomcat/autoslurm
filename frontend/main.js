@@ -1,12 +1,19 @@
 const API_BASE = "http://127.0.0.1:8000";
+const REFRESH_MS = 2000;
 
 const refreshBtn = document.getElementById("refreshBtn");
-const clusterState = document.getElementById("clusterState");
 const createTargetNodesInput = document.getElementById("createTargetNodes");
 const colocateFirstComputeInput = document.getElementById("colocateFirstCompute");
 const createBtn = document.getElementById("createBtn");
 const destroyBtn = document.getElementById("destroyBtn");
-const clusterLifecycleResponse = document.getElementById("clusterLifecycleResponse");
+const statusBadge = document.getElementById("statusBadge");
+const nodesSummary = document.getElementById("nodesSummary");
+const controllerSummary = document.getElementById("controllerSummary");
+const operationSummary = document.getElementById("operationSummary");
+const refreshSummary = document.getElementById("refreshSummary");
+const ipsSummary = document.getElementById("ipsSummary");
+const logsWindow = document.getElementById("logsWindow");
+let inFlightAction = false;
 
 function authHeaders() {
   return {
@@ -14,21 +21,60 @@ function authHeaders() {
   };
 }
 
-function formatOperation(data) {
-  if (!data || typeof data !== "object") {
-    return JSON.stringify(data, null, 2);
+function renderSummary(state) {
+  const op = state.last_operation || null;
+  const current = state.current_nodes ?? 0;
+  const desired = state.desired_nodes ?? 0;
+  const ctrlName = state.controller?.name || "-";
+  const ctrlIp = state.controller?.ipv4 || "-";
+  const computeCount = (state.compute_nodes || []).length;
+
+  nodesSummary.textContent = `${current} actifs (desired: ${desired}, compute: ${computeCount})`;
+  controllerSummary.textContent = `${ctrlName} (${ctrlIp})`;
+  operationSummary.textContent = op
+    ? `${op.action} - ${op.status} - ${op.message || ""}`.trim()
+    : "aucune";
+
+  const ips = [];
+  if (ctrlIp !== "-") {
+    ips.push(`controller=${ctrlIp}`);
   }
-  const view = {
-    operation_id: data.operation_id,
-    action: data.action,
-    status: data.status,
-    message: data.message,
-    steps: data.steps || [],
-    logs_tail: (data.logs || []).slice(-40),
-    started_at: data.started_at,
-    finished_at: data.finished_at,
-  };
-  return JSON.stringify(view, null, 2);
+  for (const node of state.compute_nodes || []) {
+    ips.push(`${node.name}=${node.ipv4}`);
+  }
+  ipsSummary.textContent = ips.length ? ips.join(" | ") : "-";
+
+  const changing = op && op.status === "running";
+  statusBadge.textContent = changing ? "changement en cours" : "stable";
+  statusBadge.style.background = changing ? "#fff3cd" : "#e6ffed";
+  statusBadge.style.borderColor = changing ? "#f0c36d" : "#5a9f5a";
+}
+
+function renderLogs(state) {
+  const op = state.last_operation || null;
+  if (!op) {
+    logsWindow.textContent = "Aucune operation enregistree.";
+    return;
+  }
+  const lines = [];
+  lines.push(`[${op.status}] ${op.action} (${op.operation_id})`);
+  if (op.steps?.length) {
+    lines.push("");
+    lines.push("Steps:");
+    for (const s of op.steps) {
+      lines.push(`- ${s}`);
+    }
+  }
+  const logs = op.logs || [];
+  if (logs.length) {
+    lines.push("");
+    lines.push("Logs:");
+    for (const line of logs.slice(-120)) {
+      lines.push(line);
+    }
+  }
+  logsWindow.textContent = lines.join("\n");
+  logsWindow.scrollTop = logsWindow.scrollHeight;
 }
 
 async function fetchClusterState() {
@@ -42,12 +88,12 @@ async function fetchClusterState() {
 }
 
 async function refreshState() {
-  clusterState.textContent = "Chargement...";
   try {
     const data = await fetchClusterState();
-    clusterState.textContent = JSON.stringify(data, null, 2);
+    renderSummary(data);
+    renderLogs(data);
   } catch (err) {
-    clusterState.textContent = `Erreur: ${err.message}`;
+    logsWindow.textContent = `Erreur: ${err.message}`;
   }
 }
 
@@ -65,10 +111,8 @@ async function streamOperationProgress(actionName, outputEl, finalPromise) {
 
     try {
       const state = await fetchClusterState();
-      clusterState.textContent = JSON.stringify(state, null, 2);
-      if (state.last_operation) {
-        outputEl.textContent = formatOperation(state.last_operation);
-      }
+      renderSummary(state);
+      renderLogs(state);
     } catch (err) {
       outputEl.textContent = `Progression indisponible: ${err.message}`;
     }
@@ -80,6 +124,8 @@ async function streamOperationProgress(actionName, outputEl, finalPromise) {
 }
 
 async function createCluster() {
+  if (inFlightAction) return;
+  inFlightAction = true;
   const targetNodes = Number(createTargetNodesInput.value);
   const requestPromise = fetch(`${API_BASE}/cluster/create`, {
     method: "POST",
@@ -93,23 +139,26 @@ async function createCluster() {
   try {
     const resp = await streamOperationProgress(
       "Creation du cluster",
-      clusterLifecycleResponse,
+      logsWindow,
       requestPromise
     );
     if (!resp.ok) {
       const text = await resp.text();
-      clusterLifecycleResponse.textContent = `Erreur HTTP ${resp.status}: ${text}`;
+      logsWindow.textContent = `Erreur HTTP ${resp.status}: ${text}`;
       return;
     }
-    const data = await resp.json();
-    clusterLifecycleResponse.textContent = formatOperation(data);
+    await resp.json();
     await refreshState();
   } catch (err) {
-    clusterLifecycleResponse.textContent = `Erreur: ${err.message}`;
+    logsWindow.textContent = `Erreur: ${err.message}`;
+  } finally {
+    inFlightAction = false;
   }
 }
 
 async function destroyCluster() {
+  if (inFlightAction) return;
+  inFlightAction = true;
   const requestPromise = fetch(`${API_BASE}/cluster/destroy`, {
     method: "POST",
     headers: authHeaders(),
@@ -118,22 +167,30 @@ async function destroyCluster() {
   try {
     const resp = await streamOperationProgress(
       "Destruction du cluster",
-      clusterLifecycleResponse,
+      logsWindow,
       requestPromise
     );
     if (!resp.ok) {
       const text = await resp.text();
-      clusterLifecycleResponse.textContent = `Erreur HTTP ${resp.status}: ${text}`;
+      logsWindow.textContent = `Erreur HTTP ${resp.status}: ${text}`;
       return;
     }
-    const data = await resp.json();
-    clusterLifecycleResponse.textContent = formatOperation(data);
+    await resp.json();
     await refreshState();
   } catch (err) {
-    clusterLifecycleResponse.textContent = `Erreur: ${err.message}`;
+    logsWindow.textContent = `Erreur: ${err.message}`;
+  } finally {
+    inFlightAction = false;
   }
 }
 
+refreshSummary.textContent = `toutes les ${REFRESH_MS / 1000}s`;
 refreshBtn.addEventListener("click", refreshState);
 createBtn.addEventListener("click", createCluster);
 destroyBtn.addEventListener("click", destroyCluster);
+setInterval(() => {
+  if (!inFlightAction) {
+    refreshState();
+  }
+}, REFRESH_MS);
+refreshState();
