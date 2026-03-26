@@ -219,6 +219,7 @@ class ClusterService:
             self.settings.iac_bin,
             "apply",
             "-auto-approve",
+            "-lock=false",
             f"-var=initial_compute_count={target_nodes}",
             f"-var=colocate_controller_and_first_compute={'true' if colocate else 'false'}",
         ]
@@ -421,7 +422,10 @@ class ClusterService:
             self._append_step(operation, "OpenTofu init")
             run_cmd([self.settings.iac_bin, "init", "-input=false"], cwd=self.terraform_dir)
             self._append_step(operation, "OpenTofu destroy")
-            run_cmd([self.settings.iac_bin, "destroy", "-auto-approve"], cwd=self.terraform_dir)
+            run_cmd(
+                [self.settings.iac_bin, "destroy", "-auto-approve", "-lock=false"],
+                cwd=self.terraform_dir,
+            )
             self._append_step(operation, "Nettoyage inventaire Ansible")
             self._write_empty_inventory()
             operation.status = "success"

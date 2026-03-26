@@ -10,44 +10,50 @@
     <main class="container">
       <h1>Autoslurm</h1>
 
-      <section class="card">
-        <h2>Commande cluster</h2>
-        <div class="row">
-          <label for="createTargetNodes">target_nodes</label>
-          <input id="createTargetNodes" type="number" min="1" value="1" />
-        </div>
-        <label class="inline" for="colocateFirstCompute">
-          <input id="colocateFirstCompute" type="checkbox" />
-          Controller + 1er compute sur la meme VM
-        </label>
-        <div class="buttons">
-          <button id="createBtn">Creer / Mettre a jour</button>
-          <button id="destroyBtn" class="danger">Detruire</button>
-        </div>
-      </section>
+      <div class="layout">
+        <div class="left">
+          <section class="card">
+            <h2>Commande</h2>
+            <div class="row">
+              <label for="createTargetNodes">target_nodes</label>
+              <input id="createTargetNodes" type="number" min="0" value="1" />
+            </div>
+            <label class="inline" for="colocateFirstCompute">
+              <input id="colocateFirstCompute" type="checkbox" />
+              Controller + 1er compute sur la meme VM
+            </label>
+            <div class="buttons">
+              <button id="createBtn">Appliquer</button>
+              <button id="destroyBtn" class="danger">Detruire</button>
+            </div>
+          </section>
 
-      <section class="card">
-        <div class="header-line">
-          <h2>Etat cluster</h2>
-          <button id="refreshBtn">Rafraichir</button>
+          <section class="card">
+            <div class="header-line">
+              <h2>Etat</h2>
+              <button id="refreshBtn">Refresh</button>
+            </div>
+            <div class="badges">
+              <div id="statusBadge" class="badge">inconnu</div>
+              <div class="badge muted">auto: <span id="refreshSummary">2s</span></div>
+            </div>
+            <div class="summary-grid">
+              <div><strong>Nodes</strong> <span id="nodesSummary">-</span></div>
+              <div><strong>Controller</strong> <span id="controllerSummary">-</span></div>
+              <div class="span2"><strong>Derniere action</strong> <span id="operationSummary">-</span></div>
+              <div class="span2"><strong>IPs</strong> <span id="ipsSummary">-</span></div>
+            </div>
+          </section>
         </div>
-        <div id="statusBadge" class="badge">inconnu</div>
-        <div class="summary-grid">
-          <div><strong>Nodes:</strong> <span id="nodesSummary">-</span></div>
-          <div><strong>Controller:</strong> <span id="controllerSummary">-</span></div>
-          <div><strong>Derniere action:</strong> <span id="operationSummary">-</span></div>
-          <div><strong>Auto-refresh:</strong> <span id="refreshSummary">toutes les 2s</span></div>
-        </div>
-        <div>
-          <strong>IPs:</strong>
-          <span id="ipsSummary">-</span>
-        </div>
-      </section>
 
-      <section class="card">
-        <h2>Logs continus</h2>
-        <pre id="logsWindow">Aucun log.</pre>
-      </section>
+        <section class="card logs">
+          <div class="header-line">
+            <h2>Logs</h2>
+            <div class="hint">continu</div>
+          </div>
+          <pre id="logsWindow">Aucun log.</pre>
+        </section>
+      </div>
     </main>
     <script src="./main.js"></script>
   </body>
