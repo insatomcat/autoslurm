@@ -15,17 +15,9 @@
     group: slurm
     mode: "0755"
 
-- name: Fetch slurm.conf from controller
-  ansible.builtin.fetch:
-    src: /etc/slurm/slurm.conf
-    dest: /tmp/autoslurm-slurmconf/
-    flat: true
-  delegate_to: "{{ groups['slurm_controller'][0] }}"
-  run_once: true
-
-- name: Deploy slurm.conf on compute nodes
-  ansible.builtin.copy:
-    src: /tmp/autoslurm-slurmconf/slurm.conf
+- name: Render slurm.conf on compute nodes
+  ansible.builtin.template:
+    src: slurm.conf.j2
     dest: /etc/slurm/slurm.conf
     owner: root
     group: root

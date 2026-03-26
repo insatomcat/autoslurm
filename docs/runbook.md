@@ -33,6 +33,15 @@ cd frontend
 python3 -m http.server 8080
 ```
 
+## Collections Ansible (optionnel)
+
+Pour figer les versions de collections utilisees par le projet:
+
+```bash
+cd infra/ansible
+ansible-galaxy collection install -r collections/requirements.yml
+```
+
 ## Pont OpenTofu -> Ansible
 
 L'inventaire Ansible est genere automatiquement depuis:

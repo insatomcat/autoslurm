@@ -39,6 +39,9 @@ if [ "${HARDEN_IMAGE}" = "1" ]; then
   virt-customize -a "${IMAGE_FILE}" \
     --install "${BASE_PACKAGES}" \
     --run-command "systemctl enable qemu-guest-agent" \
+    --run-command "install -d -m 0755 /etc/sudoers.d" \
+    --run-command "printf 'debian ALL=(ALL) NOPASSWD:ALL\n' > /etc/sudoers.d/90-debian-nopasswd" \
+    --run-command "chmod 0440 /etc/sudoers.d/90-debian-nopasswd" \
     --run-command "truncate -s 0 /etc/machine-id" \
     --run-command "rm -f /var/lib/dbus/machine-id && ln -s /etc/machine-id /var/lib/dbus/machine-id" \
     --run-command "cloud-init clean --logs --seed || true" \
