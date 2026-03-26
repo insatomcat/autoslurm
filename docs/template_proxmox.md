@@ -65,9 +65,16 @@ Par defaut, les scripts executent:
 
 ```bash
 virt-customize -a <image>.qcow2 \
-  --install qemu-guest-agent,cloud-init \
+  --install qemu-guest-agent \
   --run-command "systemctl enable qemu-guest-agent"
 ```
+
+En plus, le hardening nettoie l'identite clonee et prepare le layout clavier FR:
+
+- reset `machine-id` (evite DHCP client-id duplique entre clones),
+- `cloud-init clean`,
+- regeneration des host keys SSH au boot,
+- ecriture de `/etc/default/keyboard` avec `XKBLAYOUT="fr"`.
 
 Si tu veux desactiver temporairement cette etape:
 

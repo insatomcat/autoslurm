@@ -33,6 +33,15 @@ cd frontend
 python3 -m http.server 8080
 ```
 
+## Pont OpenTofu -> Ansible
+
+L'inventaire Ansible est genere automatiquement depuis:
+
+- `tofu output -json cluster_inventory`
+
+Le backend synchronise `infra/ansible/inventory/generated_hosts.yml` avant chaque
+`ansible-playbook` (`scale` et `reconcile`).
+
 ## Verification E2E
 
 1. Verifier l'etat initial (1 compute):

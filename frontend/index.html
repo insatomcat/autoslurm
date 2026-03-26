@@ -9,24 +9,24 @@
   <body>
     <main class="container">
       <h1>Autoslurm</h1>
+
       <section class="card">
-        <h2>Connexion API</h2>
-        <label for="token">Bearer token</label>
-        <input id="token" type="password" placeholder="AUTOSLURM_API_TOKEN" />
+        <h2>Cluster</h2>
+        <label for="createTargetNodes">target_nodes</label>
+        <input id="createTargetNodes" type="number" min="1" value="1" />
+        <label for="colocateFirstCompute">
+          <input id="colocateFirstCompute" type="checkbox" />
+          Controller + 1er compute sur la meme VM
+        </label>
+        <button id="createBtn">Creer/Mettre a jour cluster</button>
+        <button id="destroyBtn">Detruire cluster</button>
+        <pre id="clusterLifecycleResponse">Aucune operation.</pre>
       </section>
 
       <section class="card">
         <h2>Etat du cluster</h2>
         <button id="refreshBtn">Rafraichir</button>
         <pre id="clusterState">Aucun etat charge.</pre>
-      </section>
-
-      <section class="card">
-        <h2>Scale</h2>
-        <label for="targetNodes">target_nodes</label>
-        <input id="targetNodes" type="number" min="1" value="1" />
-        <button id="scaleBtn">Appliquer</button>
-        <pre id="scaleResponse">Aucune operation.</pre>
       </section>
     </main>
     <script src="./main.js"></script>

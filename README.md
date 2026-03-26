@@ -19,6 +19,29 @@ MVP d'autoscaling Slurm sur Proxmox.
 4. Lancer le frontend statique.
 5. Utiliser l'UI pour ajuster `target_nodes`.
 
+## Orchestration automatique infra -> config
+
+Le flux MVP est automatise:
+
+1. OpenTofu cree/supprime les VM.
+2. Le backend lit `cluster_inventory` via `tofu output -json`.
+3. Le backend genere `infra/ansible/inventory/generated_hosts.yml`.
+4. Le backend execute Ansible pour configurer/mettre a jour Slurm.
+
+Aucune edition manuelle d'inventaire n'est requise pour le scale.
+
+## API cluster lifecycle
+
+- `POST /cluster/create`: creation complete du cluster (infra + config).
+- `POST /cluster/scale`: ajustement du nombre de compute nodes.
+- `POST /cluster/destroy`: destruction complete du cluster.
+- `POST /cluster/reconcile`: reapplication de la configuration.
+
+Le mode `controller + 1er compute sur la meme VM` est disponible via:
+
+- payload API: `colocate_controller_and_first_compute`
+- variable backend par defaut: `AUTOSLURM_COLOCATE_CONTROLLER_FIRST_COMPUTE`
+
 ## Reseau Proxmox dedie Slurm (recommande lab)
 
 Pour eviter les problemes DHCP du LAN principal, creer un reseau dedie:

@@ -7,4 +7,7 @@ vm_template_id        = 9000
 vm_datastore_id       = "local-lvm"
 vm_network_bridge     = "vmbr0"
 ssh_public_key        = "ssh-ed25519 AAAA..."
+vm_user_password      = "toto"
+vm_keyboard_layout    = "fr"
 initial_compute_count = 1
+colocate_controller_and_first_compute = false

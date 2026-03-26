@@ -1,0 +1,10 @@
+all:
+  vars:
+    ansible_user: debian
+    cluster_name: autoslurm
+    slurm_cluster_name: autoslurm
+  children:
+    slurm_controller:
+      hosts: {}
+    slurm_compute:
+      hosts: {}

@@ -47,6 +47,19 @@ variable "ssh_public_key" {
   description = "Cle SSH publique injectee dans la VM."
 }
 
+variable "vm_user_password" {
+  type        = string
+  description = "Mot de passe cloud-init pour l'utilisateur Debian."
+  default     = "toto"
+  sensitive   = true
+}
+
+variable "vm_keyboard_layout" {
+  type        = string
+  description = "Disposition clavier VM."
+  default     = "fr"
+}
+
 variable "controller_cpu" {
   type        = number
   default     = 2
@@ -71,4 +84,10 @@ variable "initial_compute_count" {
   type        = number
   description = "Nombre initial de noeuds compute."
   default     = 1
+}
+
+variable "colocate_controller_and_first_compute" {
+  type        = bool
+  description = "Si true, le controller et le premier compute partagent la meme VM."
+  default     = false
 }

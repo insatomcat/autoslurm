@@ -37,3 +37,12 @@ variable "memory_mb" {
 variable "ssh_public_key" {
   type = string
 }
+
+variable "vm_user_password" {
+  type      = string
+  sensitive = true
+}
+
+variable "keyboard_layout" {
+  type = string
+}

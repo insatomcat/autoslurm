@@ -5,6 +5,7 @@ locals {
 resource "proxmox_virtual_environment_vm" "this" {
   name      = local.vm_name
   node_name = var.target_node_name
+  keyboard_layout = var.keyboard_layout
 
   clone {
     vm_id = var.vm_template_id
@@ -34,6 +35,7 @@ resource "proxmox_virtual_environment_vm" "this" {
   initialization {
     user_account {
       username = "debian"
+      password = var.vm_user_password
       keys     = [var.ssh_public_key]
     }
 

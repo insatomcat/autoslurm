@@ -9,6 +9,12 @@ OperationStatus = Literal["pending", "running", "success", "failed"]
 
 class ScaleRequest(BaseModel):
     target_nodes: int = Field(ge=1, le=999)
+    colocate_controller_and_first_compute: bool | None = None
+
+
+class CreateClusterRequest(BaseModel):
+    target_nodes: int = Field(ge=1, le=999)
+    colocate_controller_and_first_compute: bool = False
 
 
 class Operation(BaseModel):
@@ -17,6 +23,8 @@ class Operation(BaseModel):
     target_nodes: int | None = None
     status: OperationStatus
     message: str = ""
+    steps: list[str] = []
+    logs: list[str] = []
     started_at: datetime
     finished_at: datetime | None = None
 

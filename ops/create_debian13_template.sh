@@ -32,8 +32,18 @@ if [ "${HARDEN_IMAGE}" = "1" ]; then
   fi
   echo "[2/8] Harden image (install qemu-guest-agent)"
   virt-customize -a "${IMAGE_FILE}" \
-    --install qemu-guest-agent,cloud-init \
-    --run-command "systemctl enable qemu-guest-agent"
+    --install qemu-guest-agent,console-setup,keyboard-configuration,kbd \
+    --run-command "systemctl enable qemu-guest-agent" \
+    --run-command "truncate -s 0 /etc/machine-id" \
+    --run-command "rm -f /var/lib/dbus/machine-id && ln -s /etc/machine-id /var/lib/dbus/machine-id" \
+    --run-command "cloud-init clean --logs --seed || true" \
+    --run-command "rm -f /etc/ssh/ssh_host_*" \
+    --run-command "printf 'XKBMODEL=\"pc105\"\nXKBLAYOUT=\"fr\"\nXKBVARIANT=\"\"\nXKBOPTIONS=\"\"\nBACKSPACE=\"guess\"\n' > /etc/default/keyboard" \
+    --run-command "printf 'KEYMAP=fr\n' > /etc/vconsole.conf" \
+    --run-command "printf 'keyboard-configuration keyboard-configuration/layoutcode string fr\nkeyboard-configuration keyboard-configuration/modelcode string pc105\nkeyboard-configuration keyboard-configuration/variantcode string\nkeyboard-configuration keyboard-configuration/optionscode string\nconsole-setup console-setup/charmap47 select UTF-8\nconsole-setup console-setup/codeset47 select Lat15\nconsole-setup console-setup/fontsize-text47 select 16\nconsole-setup console-setup/fontface47 select Fixed\n' | debconf-set-selections" \
+    --run-command "DEBIAN_FRONTEND=noninteractive dpkg-reconfigure keyboard-configuration" \
+    --run-command "DEBIAN_FRONTEND=noninteractive dpkg-reconfigure console-setup" \
+    --run-command "setupcon || true"
   STEP_CREATE="[3/8]"
   STEP_IMPORT="[4/8]"
   STEP_RESIZE="[5/8]"
