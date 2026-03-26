@@ -1,3 +1,6 @@
 slurm_cluster_name: autoslurm
 slurm_state_save_location: /var/spool/slurmctld
 slurm_spool_dir: /var/spool/slurmd
+nfs_export_path: /home
+nfs_allowed_network: 172.22.0.0/24
+nfs_export_options: rw,sync,no_subtree_check

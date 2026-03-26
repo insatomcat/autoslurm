@@ -1,1 +1,3 @@
 slurm_spool_dir: /var/spool/slurmd
+nfs_mount_path: /home
+nfs_mount_opts: defaults,_netdev,nfsvers=4

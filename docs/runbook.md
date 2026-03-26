@@ -45,6 +45,14 @@ Le backend synchronise `infra/ansible/inventory/generated_hosts.yml` avant chaqu
 `infra/ansible/inventory/hosts.yml` n'est plus utilise: l'inventaire est
 genere uniquement par le backend.
 
+## Partage /home pour Slurm
+
+Le playbook configure automatiquement un `/home` partage en NFS:
+
+- le controller exporte `/home` via `nfs-kernel-server`,
+- les compute montent `controller:/home` sur `/home`,
+- montage persistant via `fstab`.
+
 ## Verification E2E
 
 1. Verifier l'etat initial (1 compute):

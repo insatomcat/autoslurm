@@ -3,6 +3,7 @@
     name:
       - slurmd
       - slurm-client
+      - nfs-common
     state: present
     update_cache: true
 
@@ -29,6 +30,15 @@
     owner: root
     group: root
     mode: "0644"
+
+- name: Mount shared /home from controller via NFS
+  ansible.builtin.mount:
+    src: "{{ hostvars[groups['slurm_controller'][0]].ansible_host }}:/home"
+    path: "{{ nfs_mount_path }}"
+    fstype: nfs
+    opts: "{{ nfs_mount_opts }}"
+    state: mounted
+  when: inventory_hostname != groups['slurm_controller'][0]
 
 - name: Enable slurmd
   ansible.builtin.systemd:

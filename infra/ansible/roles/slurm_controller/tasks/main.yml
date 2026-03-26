@@ -3,6 +3,7 @@
     name:
       - slurmctld
       - slurm-wlm-basic-plugins
+      - nfs-kernel-server
     state: present
     update_cache: true
 
@@ -21,6 +22,24 @@
     owner: root
     group: root
     mode: "0644"
+
+- name: Configure NFS export for shared home
+  ansible.builtin.lineinfile:
+    path: /etc/exports
+    regexp: "^{{ nfs_export_path }}\\s+"
+    line: "{{ nfs_export_path }} {{ nfs_allowed_network }}({{ nfs_export_options }})"
+    create: true
+    mode: "0644"
+
+- name: Apply NFS exports
+  ansible.builtin.command: exportfs -ra
+  changed_when: false
+
+- name: Enable NFS server
+  ansible.builtin.systemd:
+    name: nfs-server
+    enabled: true
+    state: started
 
 - name: Enable slurmctld
   ansible.builtin.systemd:
