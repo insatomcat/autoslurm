@@ -27,3 +27,4 @@ infra/ansible/*.retry
 
 # OS/editor
 .DS_Store
+.swp

@@ -14,6 +14,7 @@
 2. Renseigner les parametres Proxmox et la cle SSH.
 3. Copier `backend/.env.example` en `.env` (ou exporter les variables).
 4. Verifier `AUTOSLURM_IAC_BIN=tofu` dans l'environnement backend.
+5. Si besoin, generer automatiquement le template Debian 13 via `ops/create_debian13_template.sh` (voir `docs/template_proxmox.md`).
 
 ## Demarrage backend
 
