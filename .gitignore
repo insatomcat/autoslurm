@@ -24,7 +24,8 @@ override.tf.json
 # Ansible temp / local artifacts
 infra/ansible/.ansible/
 infra/ansible/*.retry
+infra/ansible/inventory/generated_hosts.yml
 
 # OS/editor
 .DS_Store
-.swp
+*.swp

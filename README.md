@@ -28,7 +28,8 @@ Le flux MVP est automatise:
 3. Le backend genere `infra/ansible/inventory/generated_hosts.yml`.
 4. Le backend execute Ansible pour configurer/mettre a jour Slurm.
 
-Aucune edition manuelle d'inventaire n'est requise pour le scale.
+Aucune edition manuelle d'inventaire n'est requise. Il n'y a pas d'inventaire
+statique versionne: l'inventaire est genere uniquement par le backend.
 
 ## API cluster lifecycle
 

@@ -42,6 +42,9 @@ L'inventaire Ansible est genere automatiquement depuis:
 Le backend synchronise `infra/ansible/inventory/generated_hosts.yml` avant chaque
 `ansible-playbook` (`scale` et `reconcile`).
 
+`infra/ansible/inventory/hosts.yml` n'est plus utilise: l'inventaire est
+genere uniquement par le backend.
+
 ## Verification E2E
 
 1. Verifier l'etat initial (1 compute):
