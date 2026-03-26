@@ -9,5 +9,6 @@ vm_network_bridge     = "vmbr0"
 ssh_public_key        = "ssh-ed25519 AAAA..."
 vm_user_password      = "toto"
 vm_keyboard_layout    = "fr"
+controller_mac        = "BC:24:11:AA:BB:CC"
 initial_compute_count = 1
 colocate_controller_and_first_compute = false

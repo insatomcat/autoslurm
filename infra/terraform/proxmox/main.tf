@@ -18,6 +18,7 @@ module "controller" {
   ssh_public_key    = var.ssh_public_key
   vm_user_password  = var.vm_user_password
   keyboard_layout   = var.vm_keyboard_layout
+  mac_address       = var.controller_mac
 }
 
 module "controller_compute" {
@@ -36,6 +37,7 @@ module "controller_compute" {
   ssh_public_key    = var.ssh_public_key
   vm_user_password  = var.vm_user_password
   keyboard_layout   = var.vm_keyboard_layout
+  mac_address       = var.controller_mac
 }
 
 module "compute_nodes" {
@@ -54,4 +56,5 @@ module "compute_nodes" {
   ssh_public_key    = var.ssh_public_key
   vm_user_password  = var.vm_user_password
   keyboard_layout   = var.vm_keyboard_layout
+  mac_address       = ""
 }

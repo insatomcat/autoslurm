@@ -16,6 +16,7 @@ EFI_FORMAT="${EFI_FORMAT:-raw}"
 IMAGE_URL="${IMAGE_URL:-https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2}"
 IMAGE_FILE="${IMAGE_FILE:-debian-13-genericcloud-amd64.qcow2}"
 HARDEN_IMAGE="${HARDEN_IMAGE:-1}"
+INSTALL_SLURM_BASE_PACKAGES="${INSTALL_SLURM_BASE_PACKAGES:-1}"
 
 if qm status "${VMID}" >/dev/null 2>&1; then
   echo "VMID ${VMID} already exists. Choose another VMID."
@@ -30,9 +31,13 @@ if [ "${HARDEN_IMAGE}" = "1" ]; then
     echo "virt-customize not found. Install guestfs-tools or set HARDEN_IMAGE=0."
     exit 1
   fi
-  echo "[2/8] Harden image (install qemu-guest-agent)"
+  BASE_PACKAGES="qemu-guest-agent,console-setup,keyboard-configuration,kbd"
+  if [ "${INSTALL_SLURM_BASE_PACKAGES}" = "1" ]; then
+    BASE_PACKAGES="${BASE_PACKAGES},zip,unzip,zstd,slurmd,slurm-wlm,slurmctld,slurmdbd,podman,podman-compose,libmunge-dev,libmunge2,munge,build-essential,nfs-common,nfs-kernel-server,htop"
+  fi
+  echo "[2/8] Harden image (install base packages)"
   virt-customize -a "${IMAGE_FILE}" \
-    --install qemu-guest-agent,console-setup,keyboard-configuration,kbd \
+    --install "${BASE_PACKAGES}" \
     --run-command "systemctl enable qemu-guest-agent" \
     --run-command "truncate -s 0 /etc/machine-id" \
     --run-command "rm -f /var/lib/dbus/machine-id && ln -s /etc/machine-id /var/lib/dbus/machine-id" \

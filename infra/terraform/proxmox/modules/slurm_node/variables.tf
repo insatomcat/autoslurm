@@ -46,3 +46,8 @@ variable "vm_user_password" {
 variable "keyboard_layout" {
   type = string
 }
+
+variable "mac_address" {
+  type    = string
+  default = ""
+}

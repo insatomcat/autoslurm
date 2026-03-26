@@ -53,11 +53,12 @@ EFI_FORMAT="${EFI_FORMAT:-raw}"
 IMAGE_URL="${IMAGE_URL:-https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2}"
 IMAGE_FILE="${IMAGE_FILE:-debian-13-genericcloud-amd64.qcow2}"
 HARDEN_IMAGE="${HARDEN_IMAGE:-1}"
+INSTALL_SLURM_BASE_PACKAGES="${INSTALL_SLURM_BASE_PACKAGES:-1}"
 
 echo "Connecting to ${PROXMOX_SSH_USER}@${PROXMOX_SSH_HOST}:${PROXMOX_SSH_PORT}..."
 
 ssh -p "${PROXMOX_SSH_PORT}" "${PROXMOX_SSH_USER}@${PROXMOX_SSH_HOST}" \
-  "VMID='${VMID}' VMNAME='${VMNAME}' STORAGE='${STORAGE}' BRIDGE='${BRIDGE}' CORES='${CORES}' MEMORY_MB='${MEMORY_MB}' DISK_SIZE='${DISK_SIZE}' DISK_FORMAT='${DISK_FORMAT}' EFI_FORMAT='${EFI_FORMAT}' IMAGE_URL='${IMAGE_URL}' IMAGE_FILE='${IMAGE_FILE}' HARDEN_IMAGE='${HARDEN_IMAGE}' bash -s" <<'EOF'
+  "VMID='${VMID}' VMNAME='${VMNAME}' STORAGE='${STORAGE}' BRIDGE='${BRIDGE}' CORES='${CORES}' MEMORY_MB='${MEMORY_MB}' DISK_SIZE='${DISK_SIZE}' DISK_FORMAT='${DISK_FORMAT}' EFI_FORMAT='${EFI_FORMAT}' IMAGE_URL='${IMAGE_URL}' IMAGE_FILE='${IMAGE_FILE}' HARDEN_IMAGE='${HARDEN_IMAGE}' INSTALL_SLURM_BASE_PACKAGES='${INSTALL_SLURM_BASE_PACKAGES}' bash -s" <<'EOF'
 set -euo pipefail
 
 if ! command -v qm >/dev/null 2>&1; then
@@ -78,9 +79,13 @@ if [ "${HARDEN_IMAGE}" = "1" ]; then
     echo "virt-customize not found on remote host. Install guestfs-tools or set HARDEN_IMAGE=0."
     exit 1
   fi
-  echo "[2/8] Harden image (install qemu-guest-agent)"
+  BASE_PACKAGES="qemu-guest-agent,console-setup,keyboard-configuration,kbd"
+  if [ "${INSTALL_SLURM_BASE_PACKAGES}" = "1" ]; then
+    BASE_PACKAGES="${BASE_PACKAGES},zip,unzip,zstd,slurmd,slurm-wlm,slurmctld,slurmdbd,podman,podman-compose,libmunge-dev,libmunge2,munge,build-essential,nfs-common,nfs-kernel-server,htop"
+  fi
+  echo "[2/8] Harden image (install base packages)"
   virt-customize -a "${IMAGE_FILE}" \
-    --install qemu-guest-agent,console-setup,keyboard-configuration,kbd \
+    --install "${BASE_PACKAGES}" \
     --run-command "systemctl enable qemu-guest-agent" \
     --run-command "truncate -s 0 /etc/machine-id" \
     --run-command "rm -f /var/lib/dbus/machine-id && ln -s /etc/machine-id /var/lib/dbus/machine-id" \

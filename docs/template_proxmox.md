@@ -37,6 +37,7 @@ Le script cree par defaut:
 - `DISK_FORMAT=raw`
 - `EFI_FORMAT=raw`
 - `HARDEN_IMAGE=1` (installe `qemu-guest-agent` + active le service)
+- `INSTALL_SLURM_BASE_PACKAGES=1` (installe une base de paquets Slurm/outils)
 
 ## Variables personnalisables
 
@@ -51,6 +52,7 @@ DISK_SIZE=25G \
 DISK_FORMAT=raw \
 EFI_FORMAT=raw \
 HARDEN_IMAGE=1 \
+INSTALL_SLURM_BASE_PACKAGES=1 \
 bash /path/to/autoslurm/ops/create_debian13_template.sh
 ```
 
@@ -75,6 +77,16 @@ En plus, le hardening nettoie l'identite clonee et prepare le layout clavier FR:
 - `cloud-init clean`,
 - regeneration des host keys SSH au boot,
 - ecriture de `/etc/default/keyboard` avec `XKBLAYOUT="fr"`.
+
+Si `INSTALL_SLURM_BASE_PACKAGES=1`, le template preinstalle aussi:
+
+- `zip`, `unzip`, `zstd`
+- `slurmd`, `slurm-wlm`, `slurmctld`, `slurmdbd`
+- `podman`, `podman-compose`
+- `libmunge-dev`, `libmunge2`, `munge`
+- `build-essential`
+- `nfs-common`, `nfs-kernel-server`
+- `htop`
 
 Si tu veux desactiver temporairement cette etape:
 

@@ -30,6 +30,7 @@ resource "proxmox_virtual_environment_vm" "this" {
   network_device {
     bridge = var.vm_network_bridge
     model  = "virtio"
+    mac_address = var.mac_address != "" ? var.mac_address : null
   }
 
   initialization {

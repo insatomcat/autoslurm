@@ -60,6 +60,12 @@ variable "vm_keyboard_layout" {
   default     = "fr"
 }
 
+variable "controller_mac" {
+  type        = string
+  description = "Adresse MAC fixe du controller (pour reservation DHCP)."
+  default     = ""
+}
+
 variable "controller_cpu" {
   type        = number
   default     = 2
