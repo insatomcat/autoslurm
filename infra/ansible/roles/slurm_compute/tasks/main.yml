@@ -1,0 +1,37 @@
+- name: Install slurm compute packages
+  ansible.builtin.apt:
+    name:
+      - slurmd
+      - slurm-client
+    state: present
+    update_cache: true
+
+- name: Ensure slurmd spool directory exists
+  ansible.builtin.file:
+    path: "{{ slurm_spool_dir }}"
+    state: directory
+    owner: slurm
+    group: slurm
+    mode: "0755"
+
+- name: Fetch slurm.conf from controller
+  ansible.builtin.fetch:
+    src: /etc/slurm/slurm.conf
+    dest: /tmp/autoslurm-slurmconf/
+    flat: true
+  delegate_to: "{{ groups['slurm_controller'][0] }}"
+  run_once: true
+
+- name: Deploy slurm.conf on compute nodes
+  ansible.builtin.copy:
+    src: /tmp/autoslurm-slurmconf/slurm.conf
+    dest: /etc/slurm/slurm.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Enable slurmd
+  ansible.builtin.systemd:
+    name: slurmd
+    enabled: true
+    state: restarted

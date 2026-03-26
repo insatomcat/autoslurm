@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Environment and secrets
+.env
+*.env
+backend/.env
+
+# Terraform / OpenTofu state and vars
+*.tfvars
+*.tfvars.json
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ansible temp / local artifacts
+infra/ansible/.ansible/
+infra/ansible/*.retry
+
+# OS/editor
+.DS_Store

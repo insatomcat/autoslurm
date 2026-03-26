@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Autoslurm UI</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Autoslurm</h1>
+      <section class="card">
+        <h2>Connexion API</h2>
+        <label for="token">Bearer token</label>
+        <input id="token" type="password" placeholder="AUTOSLURM_API_TOKEN" />
+      </section>
+
+      <section class="card">
+        <h2>Etat du cluster</h2>
+        <button id="refreshBtn">Rafraichir</button>
+        <pre id="clusterState">Aucun etat charge.</pre>
+      </section>
+
+      <section class="card">
+        <h2>Scale</h2>
+        <label for="targetNodes">target_nodes</label>
+        <input id="targetNodes" type="number" min="1" value="1" />
+        <button id="scaleBtn">Appliquer</button>
+        <pre id="scaleResponse">Aucune operation.</pre>
+      </section>
+    </main>
+    <script src="./main.js"></script>
+  </body>
+</html>

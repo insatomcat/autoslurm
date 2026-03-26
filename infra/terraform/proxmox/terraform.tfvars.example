@@ -1,0 +1,10 @@
+cluster_name          = "autoslurm"
+proxmox_api_url       = "https://proxmox.example.com:8006/api2/json"
+proxmox_api_token     = "USER@REALM!tokenid=secrettoken"
+proxmox_insecure      = true
+target_node_name      = "pve01"
+vm_template_id        = 9000
+vm_datastore_id       = "local-lvm"
+vm_network_bridge     = "vmbr0"
+ssh_public_key        = "ssh-ed25519 AAAA..."
+initial_compute_count = 1

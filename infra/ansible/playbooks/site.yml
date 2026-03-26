@@ -1,0 +1,17 @@
+- name: Configure all Slurm nodes
+  hosts: all
+  become: true
+  roles:
+    - common
+
+- name: Configure Slurm controller
+  hosts: slurm_controller
+  become: true
+  roles:
+    - slurm_controller
+
+- name: Configure Slurm compute nodes
+  hosts: slurm_compute
+  become: true
+  roles:
+    - slurm_compute

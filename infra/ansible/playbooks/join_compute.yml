@@ -1,0 +1,6 @@
+- name: Join compute nodes to Slurm cluster
+  hosts: slurm_compute
+  become: true
+  roles:
+    - common
+    - slurm_compute

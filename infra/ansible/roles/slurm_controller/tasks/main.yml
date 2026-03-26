@@ -1,0 +1,29 @@
+- name: Install slurm controller packages
+  ansible.builtin.apt:
+    name:
+      - slurmctld
+      - slurm-wlm-basic-plugins
+    state: present
+    update_cache: true
+
+- name: Ensure slurm state directory exists
+  ansible.builtin.file:
+    path: "{{ slurm_state_save_location }}"
+    state: directory
+    owner: slurm
+    group: slurm
+    mode: "0755"
+
+- name: Render slurm.conf on controller
+  ansible.builtin.template:
+    src: slurm.conf.j2
+    dest: /etc/slurm/slurm.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Enable slurmctld
+  ansible.builtin.systemd:
+    name: slurmctld
+    enabled: true
+    state: restarted
